@@ -52,6 +52,14 @@ class Config {
     const GOOGLE_CLIENT_ID      = '';
     const GOOGLE_CLIENT_SECRET  = '';
     const GOOGLE_API_KEY        = '';
+
+    // ------------------------------------------------------------------------
+    // MOODLE INTEGRATION
+    // ------------------------------------------------------------------------
+
+    const MOODLE_FEATURE        = FALSE; // Enter TRUE or FALSE
+    const MOODLE_HOME           = 'http://url-to-moodle-home';
+    const MOODLE_DB_PREFIX      = 'mdl_';
 }
 
 /* End of file config.php */

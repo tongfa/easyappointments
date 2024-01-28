@@ -33,6 +33,7 @@ class Appointments extends EA_Controller {
         $this->load->model('services_model');
         $this->load->model('customers_model');
         $this->load->model('settings_model');
+        $this->load->model('moodle_model');
         $this->load->library('timezones');
         $this->load->library('synchronization');
         $this->load->library('notifications');
@@ -56,6 +57,20 @@ class Appointments extends EA_Controller {
             {
                 redirect('installation/index');
                 return;
+            }
+
+            if (Config::MOODLE_FEATURE) {
+                /* check that user has a moodle session */
+                $mdl_user_id = $this->moodle_model->check_session();
+
+                if ($mdl_user_id == NULL) {
+                    redirect(Config::MOODLE_HOME);
+                    return;
+                }
+
+                $session_data = $this->user_model->login_user($mdl_user_id);
+                $this->session->set_userdata($session_data); // Save data on user's session.
+
             }
 
             $available_services = $this->services_model->get_available_services();
@@ -171,25 +186,6 @@ class Appointments extends EA_Controller {
                     'services' => $provider['services'],
                     'timezone' => $provider['timezone']
                 ];
-
-                $customer = $this->customers_model->get_row($appointment['id_users_customer']);
-
-                $customer = [
-                    'id' => $customer['id'],
-                    'first_name' => $customer['first_name'],
-                    'last_name' => $customer['last_name'],
-                    'email' => $customer['email'],
-                    'phone_number' => $customer['phone_number'],
-                    'timezone' => $customer['timezone'],
-                    'address' => $customer['address'],
-                    'city' => $customer['city'],
-                    'zip_code' => $customer['zip_code']
-                ];
-
-                $customer_token = md5(uniqid(mt_rand(), TRUE));
-
-                // Save the token for 10 minutes.
-                $this->cache->save('customer-token-' . $customer_token, $customer['id'], 600);
             }
             else
             {
@@ -199,8 +195,27 @@ class Appointments extends EA_Controller {
                 $customer_token = FALSE;
                 $appointment = [];
                 $provider = [];
-                $customer = [];
             }
+
+            $customer = $this->customers_model->get_row($this->session->userdata('user_id'));
+
+            $customer = [
+                'id' => $customer['id'],
+                'first_name' => 'Jon',
+                'last_name' => $customer['last_name'],
+                'email' => $customer['email'],
+                'phone_number' => $customer['phone_number'],
+                'timezone' => $customer['timezone'],
+                'address' => $customer['address'],
+                'city' => $customer['city'],
+                'zip_code' => $customer['zip_code']
+            ];
+
+            $customer_token = md5(uniqid(mt_rand(), TRUE));
+
+            // Save the token for 10 minutes.
+            $this->cache->save('customer-token-' . $customer_token, $customer['id'], 600);
+
 
             // Load the book appointment view.
             $variables = [
@@ -549,7 +564,10 @@ class Appointments extends EA_Controller {
                 return;
             }
 
-            if ($this->customers_model->exists($customer))
+            if (Config::MOODLE_FEATURE) {
+                $customer['id'] = $this->session->userdata('user_id');
+            }
+            elseif ($this->customers_model->exists($customer))
             {
                 $customer['id'] = $this->customers_model->find_record_id($customer);
             }

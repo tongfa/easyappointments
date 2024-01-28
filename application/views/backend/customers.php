@@ -53,7 +53,7 @@
         </div>
 
         <div class="record-details col-12 col-md-7">
-            <div class="btn-toolbar mb-4">
+            <!-- div class="btn-toolbar mb-4">
                 <div id="add-edit-delete-group" class="btn-group">
                     <?php if ($privileges[PRIV_CUSTOMERS]['add'] === TRUE): ?>
                         <button id="add-customer" class="btn btn-primary">
@@ -87,7 +87,7 @@
                         <?= lang('cancel') ?>
                     </button>
                 </div>
-            </div>
+            </div -->
 
             <input id="customer-id" type="hidden">
 

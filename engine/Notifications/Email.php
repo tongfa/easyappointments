@@ -151,6 +151,7 @@ class Email {
             'customer_email' => $customer['email'],
             'customer_phone' => $customer['phone_number'],
             'customer_address' => $customer['address'],
+            'notes' => $appointment['notes'],
         ], TRUE);
 
         $mailer = $this->create_mailer();

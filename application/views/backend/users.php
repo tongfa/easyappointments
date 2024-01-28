@@ -43,7 +43,7 @@
                 <?= lang('providers') ?>
             </a>
         </li>
-        <li class="nav-item">
+        <!-- li class="nav-item">
             <a class="nav-link" href="#secretaries" data-toggle="tab">
                 <?= lang('secretaries') ?>
             </a>
@@ -52,7 +52,7 @@
             <a class="nav-link" href="#admins" data-toggle="tab">
                 <?= lang('admins') ?>
             </a>
-        </li>
+        </li -->
     </ul>
 
     <div class="tab-content">
@@ -88,18 +88,18 @@
                 <div class="record-details column col-12 col-md-7">
                     <div class="float-md-left mb-4 mr-4">
                         <div class="add-edit-delete-group btn-group">
-                            <button id="add-provider" class="btn btn-primary">
+                            <!-- button id="add-provider" class="btn btn-primary">
                                 <i class="fas fa-plus-square mr-2"></i>
                                 <?= lang('add') ?>
-                            </button>
+                            </button -->
                             <button id="edit-provider" class="btn btn-outline-secondary" disabled="disabled">
                                 <i class="fas fa-edit mr-2"></i>
                                 <?= lang('edit') ?>
                             </button>
-                            <button id="delete-provider" class="btn btn-outline-secondary" disabled="disabled">
+                            <!-- button id="delete-provider" class="btn btn-outline-secondary" disabled="disabled">
                                 <i class="fas fa-trash-alt mr-2"></i>
                                 <?= lang('delete') ?>
-                            </button>
+                            </button -->
                         </div>
 
                         <div class="save-cancel-group btn-group" style="display:none;">

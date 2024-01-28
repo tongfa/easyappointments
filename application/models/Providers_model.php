@@ -516,6 +516,42 @@ class Providers_model extends EA_Model {
         return $row_data[$field_name];
     }
 
+    public function sync_providers()
+    {
+        $ea_role = $this->db->get_where('roles', ['slug' => 'provider'])->row_array();
+
+        $SERVER_DEFAULT = 99; // moodle default
+        $default_timezone = $this->timezones->get_default_timezone();
+
+        foreach ($this->moodle_model->new_providers() as $user) {
+            $use_moodle_timezone = isset($user->timezone) && $user->timezone != $SERVER_DEFAULT;
+            $ea_provider = [
+                'id' => $user->id,
+                'first_name' => $user->firstname,
+                'last_name' => $user->lastname,
+                'email' => $user->email,
+                'mobile_number' => $user->phone1,
+                'phone_number' => $user->phone2,
+                'address' => 'NOT AVAILABLE',
+                'city' => 'NOT AVAILABLE',
+                'state' => 'NOT AVAILABLE',
+                'zip_code' => 'NOT AVAILABLE',
+                'timezone' => $use_moodle_timezone ? $user->timezone : $default_timezone,
+                'language' => 'english', // TODO should this be language of moodle?
+                'id_roles' => $ea_role['id'],
+            ];
+            $ea_provider['settings'] = [
+                'id_users' => $user->id,
+                'username' => $user->username,
+                'password' => '',
+                'working_plan' => '{"sunday":null,"monday":null,"tuesday":null,"wednesday":null,"thursday":null,"friday":null,"saturday":null}',
+                'working_plan_exceptions' => '[]',
+            ];
+            $ea_provider['services'] = [];
+            $this->insert($ea_provider);
+        }
+    }
+
     /**
      * Get all, or specific records from provider's table.
      *
@@ -532,6 +568,8 @@ class Providers_model extends EA_Model {
      */
     public function get_batch($where = NULL, $limit = NULL, $offset = NULL, $order_by = NULL)
     {
+        $this->sync_providers();
+
         // CI db class may confuse two where clauses made in the same time, so get the role id first and then apply the
         // get_batch() where clause.
         $role_id = $this->get_providers_role_id();

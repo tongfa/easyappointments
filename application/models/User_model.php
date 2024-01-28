@@ -28,7 +28,56 @@ class User_model extends EA_Model {
         $this->load->library('timezones');
         $this->load->helper('general');
         $this->load->helper('string');
+        $this->load->model('moodle_model');
     }
+
+    /**
+     *
+     * @return array Returns session info for a user.
+     */
+    public function login_user($user_id, $allowed_role_slugs=['customer', 'provider', 'admin'])
+    {
+        $user = $this->get_user($user_id);
+
+        // TODO validate this user can use the role_slug.
+
+        if (empty($user))
+        {
+            return NULL;
+        }
+
+        if (! in_array($user['role_slug'], $allowed_role_slugs)) {
+            return NULL;
+        }
+
+        $ea_user = [
+            'first_name' => $user['first_name'],
+            'last_name' => $user['last_name'],
+            'email' => $user['email'],
+            'mobile_number' => $user['mobile_number'],
+            'phone_number' => $user['phone_number'],
+            'id_roles' => $user['id_roles'],
+        ];
+
+        // throw some data into the ea_user table so other parts can pick it up if needed.
+        $this->db->where('id', $user_id);
+
+        if ( ! $this->db->update('users', $ea_user))
+        {
+            throw new Exception('Could not update moodle user to the database.');
+        }
+
+
+        return [
+            'user_id' => $user_id,
+            'user_email' => $user['email'],
+            'username' => $user['username'],
+            'timezone' =>  $user['timezone'],
+            'role_slug' => $user['role_slug'],
+        ];
+
+    }
+
 
     /**
      * Returns the user from the database for the "settings" page.
@@ -39,10 +88,42 @@ class User_model extends EA_Model {
      */
     public function get_user($user_id)
     {
-        $user = $this->db->get_where('users', ['id' => $user_id])->row_array();
+        $moodle_user = $this->moodle_model->get_user($user_id);
+        if (empty($moodle_user)){
+            return $moodle_user;
+        }
+
+        $ea_user = $this->db->get_where('users', ['id' => $user_id])->row_array();
+
+        // make ea records if they do not exist.
+        if (empty($ea_user)) {
+            $this->stub_user($user_id);
+            $ea_user = [];
+        }
+
+        $user = array_merge($ea_user, $moodle_user);
+
         $user['settings'] = $this->db->get_where('user_settings', ['id_users' => $user_id])->row_array();
         unset($user['settings']['id_users']);
         return $user;
+    }
+
+    public function stub_user($user_id) {
+        $user = [
+            'id' => $user_id,
+        ];
+        $user_settings = [
+            'id_users' => $user_id
+        ];
+
+        if ( ! $this->db->insert('users', $user))
+        {
+            throw new Exception('Could not insert provider into the database');
+        }
+        if ( ! $this->db->insert('user_settings', $user_settings))
+        {
+            throw new Exception('Could not insert provider into the database');
+        }
     }
 
     /**
@@ -155,9 +236,9 @@ class User_model extends EA_Model {
             throw new Exception ('Invalid argument given: ' . $user_id);
         }
 
-        $user = $this->db->get_where('users', ['id' => $user_id])->row_array();
+        $moodle_user = $this->moodle_model->get_user($user_id);
 
-        return $user['first_name'] . ' ' . $user['last_name'];
+        return $moodle_user['first_name'] . ' ' . $moodle_user['last_name'];
     }
 
     /**

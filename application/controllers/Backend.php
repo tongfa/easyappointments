@@ -33,6 +33,7 @@ class Backend extends EA_Controller {
         $this->load->model('settings_model');
         $this->load->model('roles_model');
         $this->load->model('user_model');
+        $this->load->model('moodle_model');
         $this->load->model('secretaries_model');
         $this->load->model('admins_model');
         $this->load->library('timezones');
@@ -137,6 +138,37 @@ class Backend extends EA_Controller {
      */
     protected function has_privileges($page, $redirect = TRUE)
     {
+
+        if (Config::MOODLE_FEATURE) {
+            /* check that user has a moodle session */
+            $mdl_user_id = $this->moodle_model->check_session();
+
+            if ($mdl_user_id == NULL) {
+                // User not logged in, take them back to moodle
+                if ($redirect)
+                {
+                    header('Location: ' . Config::MOODLE_HOME);
+                }
+                return FALSE;
+            }
+
+            $session_data = $this->user_model->login_user($mdl_user_id, ['provider', 'admin']);
+
+            if ($session_data == NULL) {
+                // User did not log in as provider nor admin, take them to scheduling page.
+                if ($redirect)
+                {
+                    header('Location: ' .  site_url(''));
+                }
+                return FALSE;
+            }
+
+            $this->session->set_userdata($session_data); // Save data on user's session.
+
+            return TRUE;
+
+        }
+
         // Check if user is logged in.
         $user_id = $this->session->userdata('user_id');
 

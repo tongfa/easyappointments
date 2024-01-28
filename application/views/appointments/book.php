@@ -279,7 +279,7 @@
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <div class="form-group">
+                            <!-- div class="form-group">
                                 <label for="address" class="control-label">
                                     <?= lang('address') ?>
                                 </label>
@@ -296,10 +296,10 @@
                                     <?= lang('zip_code') ?>
                                 </label>
                                 <input type="text" id="zip-code" class="form-control" maxlength="120"/>
-                            </div>
+                            </div -->
                             <div class="form-group">
                                 <label for="notes" class="control-label">
-                                    <?= lang('notes') ?>
+                                    <?= lang('student_name') ?>
                                 </label>
                                 <textarea id="notes" maxlength="500" class="form-control" rows="1"></textarea>
                             </div>
@@ -407,11 +407,17 @@
                             <i class="fas fa-language mr-2"></i>
                             <?= ucfirst(config('language')) ?>
                         </span>
-
+<?php if ($this->session->user_id && $this->session->role_slug == 'customer'): ?>
+                        <a class="backend-link badge badge-primary" href="/learn">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            <?= lang('back') ?>
+                        </a>
+<?php else: ?>
                         <a class="backend-link badge badge-primary" href="<?= site_url('backend'); ?>">
                             <i class="fas fa-sign-in-alt mr-2"></i>
                             <?= $this->session->user_id ? lang('backend_section') : lang('login') ?>
                         </a>
+<?php endif ?>
                     </span>
                 </small>
             </div>

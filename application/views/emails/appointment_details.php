@@ -40,6 +40,10 @@
 
         <h2><?= lang('customer_details_title') ?></h2>
         <table id="customer-details">
+        <tr>
+                <td class="label" style="padding: 3px;font-weight: bold;"><?= lang('student_name') ?></td>
+                <td style="padding: 3px;"><?= $notes ?></td>
+            </tr>
             <tr>
                 <td class="label" style="padding: 3px;font-weight: bold;"><?= lang('name') ?></td>
                 <td style="padding: 3px;"><?= $customer_name ?></td>

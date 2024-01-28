@@ -142,6 +142,11 @@ class Customers_model extends EA_Model {
      */
     public function exists($customer)
     {
+        if (Config::MOODLE_FEATURE) {
+            // assume logged in if getting this far.
+            return true;
+        }
+
         if (empty($customer['email']))
         {
             throw new Exception('Customer\'s email is not provided.');
@@ -151,8 +156,9 @@ class Customers_model extends EA_Model {
         $num_rows = $this->db
             ->select('*')
             ->from('users')
+            ->join('mdl_user', 'mdl_user.id = users.id', 'inner')
             ->join('roles', 'roles.id = users.id_roles', 'inner')
-            ->where('users.email', $customer['email'])
+            ->where('mdl_user.email', $customer['email'])
             ->where('roles.slug', DB_SLUG_CUSTOMER)
             ->get()->num_rows();
 
@@ -185,8 +191,9 @@ class Customers_model extends EA_Model {
         $result = $this->db
             ->select('users.id')
             ->from('users')
+            ->join('mdl_user', 'mdl_user.id = users.id', 'inner')
             ->join('roles', 'roles.id = users.id_roles', 'inner')
-            ->where('users.email', $customer['email'])
+            ->where('mdl_user.email', $customer['email'])
             ->where('roles.slug', DB_SLUG_CUSTOMER)
             ->get();
 

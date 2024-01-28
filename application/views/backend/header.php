@@ -104,7 +104,7 @@
             </li>
 
             <li class="nav-item">
-                <a href="<?= site_url('user/logout') ?>" class="nav-link"
+                <a href="/learn" class="nav-link"
                    data-tippy-content="<?= lang('log_out_hint') ?>">
                     <i class="fas fa-sign-out-alt mr-2"></i>
                     <?= lang('log_out') ?>
